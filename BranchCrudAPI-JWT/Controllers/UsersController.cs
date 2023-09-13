@@ -45,11 +45,13 @@ namespace BranchCrudAPI_JWT.Controllers
                 return BadRequest(new { error = "Username is already taken." });
             }
 
-            // Create and add the new user
+            // Hash the password
+            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(model.Password);
 
+            // Create and add the new user
             if (ModelState.IsValid)
             {
-                var user = new User { Username = model.Username, Email=model.Email, Password = model.Password }; // You should hash the password
+                var user = new User { Username = model.Username, Email=model.Email, Password = hashedPassword }; 
                 _context.User.Add(user);
                 await _context.SaveChangesAsync();
                 return Ok(new { Message = "Registration successful" });
@@ -61,19 +63,27 @@ namespace BranchCrudAPI_JWT.Controllers
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginViewModel model)
         {
-            var user = _context.User.SingleOrDefault(u => u.Username == model.Username && u.Password == model.Password); // You should hash the password
+            var user = _context.User.SingleOrDefault(u => u.Username == model.Username); 
 
             if (user != null)
             {
-                var token = GenerateJwtToken(user);
-                //return Ok(new { Token = token });
-                return Ok(new
+                // Verify the hashed password
+                bool isPasswordValid = BCrypt.Net.BCrypt.Verify(model.Password, user.Password);
+
+                if (isPasswordValid)
                 {
-                    id = user.Id,
-                    username = user.Username,
-                    email = user.Email,
-                    accessToken = token
-                });
+                    var token = GenerateJwtToken(user);
+                    //return Ok(new { Token = token });
+                    return Ok(new
+                    {
+                        id = user.Id,
+                        username = user.Username,
+                        email = user.Email,
+                        accessToken = token
+                    });
+                }
+
+                
             }
 
             return Unauthorized(new { Message = "Invalid username or password" });
