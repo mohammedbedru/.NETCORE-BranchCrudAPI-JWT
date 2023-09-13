@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using NuGet.Configuration;
 
 namespace BranchCrudAPI_JWT.Controllers
 {
@@ -58,14 +59,21 @@ namespace BranchCrudAPI_JWT.Controllers
         }
 
         [HttpPost("login")]
-        public IActionResult Login([FromBody] User model)
+        public IActionResult Login([FromBody] LoginViewModel model)
         {
             var user = _context.User.SingleOrDefault(u => u.Username == model.Username && u.Password == model.Password); // You should hash the password
 
             if (user != null)
             {
                 var token = GenerateJwtToken(user);
-                return Ok(new { Token = token });
+                //return Ok(new { Token = token });
+                return Ok(new
+                {
+                    id = user.Id,
+                    username = user.Username,
+                    email = user.Email,
+                    accessToken = token
+                });
             }
 
             return Unauthorized(new { Message = "Invalid username or password" });

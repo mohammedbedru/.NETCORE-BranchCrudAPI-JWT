@@ -40,7 +40,7 @@ namespace BranchCrudAPI_JWT.Middlewares
 
                 var responseMessage = new
                 {
-                    error = "Token is missing."
+                    message = "Token is missing."
                 };
 
                 var jsonResponse = JsonConvert.SerializeObject(responseMessage);
@@ -78,7 +78,7 @@ namespace BranchCrudAPI_JWT.Middlewares
 
                 var responseMessage = new
                 {
-                    error = "Invalid Token"
+                    message = "Invalid Token"
                 };
 
                 var jsonResponse = JsonConvert.SerializeObject(responseMessage);

@@ -38,7 +38,7 @@ builder.Services.AddCors(options =>
         builder => builder
             .WithOrigins("http://localhost:3000")
             .AllowAnyHeader()
-            .AllowAnyMethod());
+            .AllowAnyMethod()); // Allow credentials if needed
 });
 
 var app = builder.Build();
@@ -50,14 +50,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+//cors
+app.UseCors("AllowLocalhost3000");
+
 //jwt
 app.UseAuthentication();
 
 //to display 'no token' or 'invalid token' message 
 app.UseMiddleware<TokenValidationMiddleware>(builder.Configuration["AppSettings:Secret"]);
 
-//cors
-app.UseCors("AllowLocalhost3000");
 
 app.UseHttpsRedirection();
 
